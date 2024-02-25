@@ -2,15 +2,20 @@ package com.example.todo
 
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.todo.data.TodoRepository
+import com.example.todo.data.db.TodoDatabase
+import com.example.todo.data.db.TodoEntity
 import com.example.todo.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
-    private val todoViewModel: TodoViewModel by viewModels()
+    private lateinit var todoViewModel: TodoViewModel
     private lateinit var binding: ActivityMainBinding
     private lateinit var todoAdapter: TodoAdapter
 
@@ -24,7 +29,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initUI() {
-        todoAdapter = TodoAdapter(todoViewModel.getTodos()) { position -> deleteTodo(position) }
+
+        val db: TodoDatabase? = TodoDatabase.getInstance(this)
+        val repository = TodoRepository(db!!)
+        val viewModelProviderFactory = TodoViewModelFactory(repository)
+        todoViewModel = ViewModelProvider(this, viewModelProviderFactory)[TodoViewModel::class.java]
+        todoAdapter = TodoAdapter(emptyList()) { todo, position -> deleteTodo(todo, position) }
+        todoViewModel.getTodos().observe(this, Observer {
+            todoAdapter.todoList = it
+            Log.d("osmait", it.toString())
+            todoAdapter.notifyDataSetChanged()
+        })
 
         binding.apply {
             rvTodo.apply {
@@ -41,15 +56,16 @@ class MainActivity : AppCompatActivity() {
         binding.btnStart.setOnClickListener {
             val todo = binding.nameInput.text.toString()
             if (todo.isEmpty()) return@setOnClickListener
-            todoViewModel.add(0, todo)
+            val todoSave = TodoEntity(null, title = todo, content = "Description")
+            todoViewModel.add(todoSave)
             binding.nameInput.text?.clear()
-            todoAdapter.notifyItemInserted(0)
+
         }
     }
 
-    private fun deleteTodo(position: Int) {
-        todoViewModel.delete(position)
-        todoAdapter.notifyItemRemoved(position)
+    private fun deleteTodo(todoEntity: TodoEntity, position: Int) {
+        todoViewModel.delete(todoEntity)
+
 
     }
 }
