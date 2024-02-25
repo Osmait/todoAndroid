@@ -1,13 +1,16 @@
 package com.example.todo
 
-import android.app.Application
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.todo.data.TodoRepository
 import com.example.todo.data.db.TodoEntity
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class TodoViewModel(private val todoRepository: TodoRepository) :
-    ViewModel() {
+@HiltViewModel
+class TodoViewModel
+@Inject constructor(
+    private val todoRepository: TodoRepository
+) : ViewModel() {
     //    val todoModel = MutableLiveData<MutableList<String>>(TodoProvider.todos)
 
     fun getTodos() = todoRepository.getAllTodoList()

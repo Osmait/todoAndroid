@@ -6,16 +6,16 @@ import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.todo.data.TodoRepository
-import com.example.todo.data.db.TodoDatabase
 import com.example.todo.data.db.TodoEntity
 import com.example.todo.databinding.ActivityMainBinding
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var todoViewModel: TodoViewModel
+
+    private val todoViewModel: TodoViewModel by viewModels()
     private lateinit var binding: ActivityMainBinding
     private lateinit var todoAdapter: TodoAdapter
 
@@ -30,10 +30,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun initUI() {
 
-        val db: TodoDatabase? = TodoDatabase.getInstance(this)
-        val repository = TodoRepository(db!!)
-        val viewModelProviderFactory = TodoViewModelFactory(repository)
-        todoViewModel = ViewModelProvider(this, viewModelProviderFactory)[TodoViewModel::class.java]
+        /*    val db: TodoDatabase? = TodoDatabase.getInstance(this)
+            val repository = TodoRepository(db!!)
+            val viewModelProviderFactory = TodoViewModelFactory(repository)
+            todoViewModel = ViewModelProvider(this, viewModelProviderFactory)[TodoViewModel::class.java]*/
         todoAdapter = TodoAdapter(emptyList()) { todo, position -> deleteTodo(todo, position) }
         todoViewModel.getTodos().observe(this, Observer {
             todoAdapter.todoList = it

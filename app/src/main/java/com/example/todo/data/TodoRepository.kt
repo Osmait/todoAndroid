@@ -1,16 +1,16 @@
 package com.example.todo.data
 
-import android.app.Application
 import androidx.lifecycle.LiveData
 import com.example.todo.data.db.TodoDao
-import com.example.todo.data.db.TodoDatabase
 import com.example.todo.data.db.TodoEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import javax.inject.Inject
 
-class TodoRepository(db: TodoDatabase) {
-    private val todoDao: TodoDao = db.todoDao()
+
+class TodoRepository @Inject constructor(private val todoDao: TodoDao) {
+
     private val allTodo: LiveData<List<TodoEntity>> = todoDao.getAllTodoList()
 
     fun saveTodo(todo: TodoEntity) = runBlocking {
